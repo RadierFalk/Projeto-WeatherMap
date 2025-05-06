@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>🌍 Clima e Qualidade do Ar</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 20px; }
+        input, button { padding: 8px; margin: 5px; font-size: 16px; }
+        #map { height: 300px; width: 80%; margin: auto; }
+    </style>
+</head>
+<body>
+    <h1>🌎 Projeto Belmira: Clima & Ar</h1>
+
+    <h2>🔎 Buscar por Cidade</h2>
+    <form method="POST">
+        <input type="hidden" name="metodo" value="cidade">
+        <input type="text" name="cidade" placeholder="Digite a cidade" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <h2>📍 Buscar por Coordenadas</h2>
+    <form method="POST">
+        <input type="hidden" name="metodo" value="coordenadas">
+        <input type="text" id="lat" name="latitude" placeholder="Latitude" required>
+        <input type="text" id="lon" name="longitude" placeholder="Longitude" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <div id="map"></div>
+
+    {% if temperatura %}
+        <h2>📍 Local: {{ cidade }}</h2>
+        <p>🌡️ Temperatura: {{ temperatura }}°C</p>
+        <p>🔥 Sensação Térmica: {{ feels_like }}°C</p>
+        <p>💧 Umidade: {{ umidade }}%</p>
+        <p>👁️ Visibilidade: {{ visibilidade }} km</p>
+        <p>☁️ Condição: {{ descricao }}</p>
+        <p>🌬️ Qualidade do Ar: {{ qualidade_ar }}</p>
+        <p>🧪 Poluentes (μg/m³):</p>
+        <ul style="list-style: none;">
+            <li>CO: {{ gases.co }}</li>
+            <li>NO: {{ gases.no }}</li>
+            <li>NO₂: {{ gases.no2 }}</li>
+            <li>O₃: {{ gases.o3 }}</li>
+            <li>PM10: {{ gases.pm10 }}</li>
+            <li>PM2.5: {{ gases.pm2_5 }}</li>
+        </ul>
+    {% elif erro %}
+        <p style="color:red">{{ erro }}</p>
+    {% endif %}
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([-3.1, -60], 3);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        let marker;
+        map.on('click', function(e) {
+            if (marker) marker.remove();
+            marker = L.marker(e.latlng).addTo(map);
+            document.getElementById('lat').value = e.latlng.lat.toFixed(4);
+            document.getElementById('lon').value = e.latlng.lng.toFixed(4);
+        });
+    </script>
+</body>
+</html>
